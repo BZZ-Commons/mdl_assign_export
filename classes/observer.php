@@ -31,9 +31,12 @@ class local_assignment_export_observer
         error_log(print_r($event_data, true));
         global $DB;
         if ($event_data['other']['modulename'] == 'assign') {
-            $module = $DB->get_record('course_modules', ['id' => $event_data['objectid']]);
             $courseid = $event_data['courseid'];
-            $idnumber = trim($module->idnumber);
+            $customfield_data = $DB->get_record('customfield_data', ['fieldid' => 2, 'instanceid' =>$courseid]);
+            $idnumber = trim($customfield_data->value);
+
+            $module = $DB->get_record('course_modules', ['id' => $event_data['objectid']]);
+            //$idnumber = trim($module->idnumber);
             error_log("export_data / $courseid / $idnumber");
             try {
                 if ($idnumber != '') {

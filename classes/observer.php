@@ -28,7 +28,6 @@ class local_assignment_export_observer
      */
     private static function export_data($event_data)
     {
-        error_log(print_r($event_data, true));
         global $DB;
         if ($event_data['other']['modulename'] == 'assign') {
             $courseid = $event_data['courseid'];
@@ -36,8 +35,8 @@ class local_assignment_export_observer
             $idnumber = trim($customfield_data->value);
 
             $module = $DB->get_record('course_modules', ['id' => $event_data['objectid']]);
-            //$idnumber = trim($module->idnumber);
-            error_log("export_data / $courseid / $idnumber");
+            if ($idnumber == '') $idnumber = trim($module->idnumber);
+
             try {
                 if ($idnumber != '') {
                     $query = 'SELECT e.id, e.courseid, e.roleid, ' .
@@ -56,7 +55,6 @@ class local_assignment_export_observer
                     foreach ($users as $id => $user) {
                         $gh_username = $user->alternatename;
                         if ($user->gh_username != '') $gh_username = $user->gh_username;
-                        error_log("Assignment_Export / username: $gh_username");
                         if ($gh_username != '') {
                             self::send_request(
                                 $gh_username,

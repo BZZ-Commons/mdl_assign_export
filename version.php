@@ -23,7 +23,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 202306063;
+$plugin->version = 202306064;
 $plugin->requires = 2015111000;
 $plugin->component = 'local_assignment_export';
 $plugin->maturity = MATURITY_BETA;

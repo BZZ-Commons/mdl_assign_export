@@ -75,7 +75,7 @@ class local_assignment_export_observer
      */
     private static function send_request($username, $reponame, $assignmentid, $courseid, $userid)
     {
-        $url = "https://it.bzz.ch/fgitapi/mdl_assign/$username/$reponame/$assignmentid/$courseid/$userid";
+        $url = "http://192.168.99.200/fgitapi/mdl_assign/$username/$reponame/$assignmentid/$courseid/$userid";
         $request = curl_init();
         curl_setopt($request, CURLOPT_URL,$url);
         curl_setopt($request, CURLOPT_POST, 1);

@@ -33,34 +33,39 @@ class local_assignment_export_observer
             $module = $DB->get_record('course_modules', ['id' => $event_data['objectid']]);
             $courseid = $event_data['courseid'];
             $idnumber = trim($module->idnumber);
-            if ($idnumber != '') {
-                $query = 'SELECT e.id, e.courseid, e.roleid, ' .
-                         'ue.userid, ud.data AS gh_username'.
-                         'u.username,  u.alternatename' .
-                    '  FROM {enrol} AS e' .
-                    '  JOIN {user_enrolments} AS ue ON (ue.enrolid = e.id)' .
-                    '  JOIN {user} AS u ON (ue.userid = u.id)' .
-                    '  JOIN {user_info_data} AS ud ON (ud.userid = u.id)' .
-                    ' WHERE e.courseid = :courseid' .
-                    '   AND ud.fieldid = 1';
-                $users = $DB->get_records_sql(
-                    $query,
-                    ['courseid' => $courseid]
-                );
-                foreach ($users as $id => $user) {
-                    $gh_username = $user->alternatename;
-                    if ($user->gh_username != '') $gh_username = $user->gh_username;
-                    error_log("Assignment_Export / username: $gh_username");
-                    if ($gh_username != '') {
-                        self::send_request(
-                            $gh_username,
-                            $idnumber,
-                            $module->instance,
-                            $courseid,
-                            $user->userid
-                        );
+            error_log("export_data / $courseid / $idnumber");
+            try {
+                if ($idnumber != '') {
+                    $query = 'SELECT e.id, e.courseid, e.roleid, ' .
+                        'ue.userid, ud.data AS gh_username, ' .
+                        'u.username,  u.alternatename' .
+                        '  FROM {enrol} AS e' .
+                        '  JOIN {user_enrolments} AS ue ON (ue.enrolid = e.id)' .
+                        '  JOIN {user} AS u ON (ue.userid = u.id)' .
+                        '  JOIN {user_info_data} AS ud ON (ud.userid = u.id)' .
+                        ' WHERE e.courseid = :courseid' .
+                        '   AND ud.fieldid = 1';
+                    $users = $DB->get_records_sql(
+                        $query,
+                        ['courseid' => $courseid]
+                    );
+                    foreach ($users as $id => $user) {
+                        $gh_username = $user->alternatename;
+                        if ($user->gh_username != '') $gh_username = $user->gh_username;
+                        error_log("Assignment_Export / username: $gh_username");
+                        if ($gh_username != '') {
+                            self::send_request(
+                                $gh_username,
+                                $idnumber,
+                                $module->instance,
+                                $courseid,
+                                $user->userid
+                            );
+                        }
                     }
                 }
+            } catch (Exception $e) {
+                error_log("Ghwalin $e");
             }
         }
     }

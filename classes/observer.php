@@ -30,12 +30,13 @@ class local_assignment_export_observer
     {
         global $DB;
         if ($event_data['other']['modulename'] == 'assign') {
+            error_log("export_data");
             $module = $DB->get_record('course_modules', ['id' => $event_data['objectid']]);
             $courseid = $event_data['courseid'];
             $idnumber = trim($module->idnumber);
             if ($idnumber != '') {
                 $query = 'SELECT e.id, e.courseid, e.roleid, ' .
-                         'ue.userid, ud.data AS gh_username'.
+                         'ue.userid, ud.data AS gh_username,'.
                          'u.username,  u.alternatename' .
                     '  FROM {enrol} AS e' .
                     '  JOIN {user_enrolments} AS ue ON (ue.enrolid = e.id)' .

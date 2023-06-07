@@ -28,7 +28,7 @@ class local_assignment_export_observer
      */
     private static function export_data($event_data)
     {
-        error_log($event_data);
+        error_log(print_r($event_data, true));
         global $DB;
         if ($event_data['other']['modulename'] == 'assign') {
             $module = $DB->get_record('course_modules', ['id' => $event_data['objectid']]);

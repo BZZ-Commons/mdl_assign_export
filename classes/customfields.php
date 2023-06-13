@@ -23,7 +23,7 @@ function custom_field_ids() {
     return $output;
 }
 
-function set_output($output, $fields) {
+function set_output(&$output, $fields) {
     foreach ($fields as $field) {
         $shortname = $field->shortname;
         $fieldId = $field->id;

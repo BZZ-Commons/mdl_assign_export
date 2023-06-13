@@ -1,5 +1,6 @@
 <?php
 require 'customfields.php';
+
 class local_assignment_export_observer
 {
     /**
@@ -19,8 +20,7 @@ class local_assignment_export_observer
     public static function module_updated(\core\event\course_module_updated $event)
     {
         $event_data = $event->get_data();
-        $data = self::export_data($event_data);
-        self::write_file($data);
+        self::export_data($event_data);
     }
 
     /**
@@ -31,16 +31,19 @@ class local_assignment_export_observer
     {
         global $DB;
         $customFields = custom_field_ids();
+
         if ($event_data['other']['modulename'] == 'assign') {
             $courseid = $event_data['courseid'];
             $customfield_data = $DB->get_record(
-                'customfield_data',
-                ['fieldid' => $customFields['classroom_assignment'], 'instanceid' => $courseid]
+                "customfield_data",
+                ["fieldid" => $customFields["classroom_assignment"], "instanceid" => $courseid]
             );
             $reponame = trim($customfield_data->value);
 
-            $module = $DB->get_record('course_modules', ['id' => $event_data['objectid']]);
-            if ($reponame == '') $reponame = trim($module->idnumber);
+            if ($reponame == '') {
+                $module = $DB->get_record('course_modules', ['id' => $event_data['objectid']]);
+                $reponame = trim($module->idnumber);
+            }
 
             try {
                 if ($reponame != "") {
@@ -57,32 +60,20 @@ class local_assignment_export_observer
                         $query,
                         ['courseid' => $courseid]
                     );
-                    $result = "{" .
-                        "\"repo\": \"$reponame\"," .
-                        "\"courseid\": $courseid," .
-                        "\"assignmentid\": $module->instance," .
-                        "\"users\": [";
-                    $json = "";
+
                     foreach ($users as $id => $user) {
                         $gh_username = $user->alternatename;
                         if ($user->gh_username != '') $gh_username = $user->gh_username;
                         if ($gh_username != '') {
-                            self::send_request(
-                                $gh_username,
+                            self::write_json(
                                 $reponame,
-                                $module->instance,
+                                $gh_username,
                                 $courseid,
+                                $module->instance,
                                 $user->userid
                             );
-                            $json .= "{" .
-                                "\"actor\": \"$gh_username\"," .
-                                "\"userid\": $user->userid," .
-                                "\"points\": -1" .
-                                "},";
                         }
                     }
-                    $result .= substr($json, 0, -1) . "]}";
-                    return $result;
                 }
             } catch (Exception $e) {
                 error_log("Ghwalin $e");
@@ -90,33 +81,20 @@ class local_assignment_export_observer
         }
     }
 
-    /**
-     * sends the request to the external api
-     * @param $username
-     * @param $reponame
-     * @param $assignmentid
-     * @param $courseid
-     * @param $userid
-     */
-    private static function send_request($username, $reponame, $assignmentid, $courseid, $userid)
+    private static function write_json($reponame, $ghuser, $courseid, $assignmentid, $userid)
     {
-        $url = "http://192.168.99.200/fgitapi/mdl_assign/$username/$reponame/$assignmentid/$courseid/$userid";
-        $request = curl_init();
-        curl_setopt($request, CURLOPT_URL, $url);
-        curl_setopt($request, CURLOPT_POST, 1);
-        curl_setopt($request, CURLOPT_POSTFIELDS, '');
-        curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
-
-        $response = curl_exec($request);
-        //error_log($response);
-
-        curl_close($request);
-    }
-
-    private static function write_file($data) {
-        $filename = uniqid() . ".json";
+        $filename = "$reponame-$ghuser.json";
+        $json = "{" .
+            "\"repo\": \"$reponame\"," .
+            "\"courseid\": $courseid," .
+            "\"assignmentid\": $assignmentid," .
+            "\"actor\": \"$ghuser\"," .
+            "\"userid\": $userid," .
+            "\"points\": -1" .
+            "}";
         $myfile = fopen("/data/grading/$filename", "w") or die("Unable to open file!");
-        fwrite($myfile, $data);
+        fwrite($myfile, $json);
         fclose($myfile);
+
     }
 }

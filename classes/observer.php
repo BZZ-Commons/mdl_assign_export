@@ -33,23 +33,26 @@ class local_assignment_export_observer
         $customFields = custom_field_ids();
         if ($event_data['other']['modulename'] == 'assign') {
             $courseid = $event_data['courseid'];
-            $customfield_data = $DB->get_record('customfield_data', ['fieldid' => 2, 'instanceid' => $courseid]);
+            $customfield_data = $DB->get_record(
+                'customfield_data',
+                ['fieldid' => $customFields['classroom_assignment'], 'instanceid' => $courseid]
+            );
             $reponame = trim($customfield_data->value);
 
             $module = $DB->get_record('course_modules', ['id' => $event_data['objectid']]);
             if ($reponame == '') $reponame = trim($module->idnumber);
 
             try {
-                if ($reponame != '') {
-                    $query = 'SELECT e.id, e.courseid, e.roleid, ' .
-                        'ue.userid, ud.data AS gh_username, ' .
-                        'u.username,  u.alternatename' .
-                        '  FROM {enrol} AS e' .
-                        '  JOIN {user_enrolments} AS ue ON (ue.enrolid = e.id)' .
-                        '  JOIN {user} AS u ON (ue.userid = u.id)' .
-                        '  JOIN {user_info_data} AS ud ON (ud.userid = u.id)' .
-                        ' WHERE e.courseid = :courseid' .
-                        '   AND ud.fieldid = 1';
+                if ($reponame != "") {
+                    $query = "SELECT e.id, e.courseid, e.roleid, " .
+                        "ue.userid, ud.data AS gh_username, " .
+                        "u.username,  u.alternatename" .
+                        "  FROM {enrol} AS e" .
+                        "  JOIN {user_enrolments} AS ue ON (ue.enrolid = e.id)" .
+                        "  JOIN {user} AS u ON (ue.userid = u.id)" .
+                        "  JOIN {user_info_data} AS ud ON (ud.userid = u.id)" .
+                        " WHERE e.courseid = :courseid" .
+                        "   AND ud.fieldid = " . $customFields['github_username'];
                     $users = $DB->get_records_sql(
                         $query,
                         ['courseid' => $courseid]

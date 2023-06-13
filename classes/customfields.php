@@ -17,5 +17,16 @@ function custom_field_ids() {
         error_log("Field: $shortname = $fieldId" );
         $output[$shortname] = $fieldId;
     }
+
+    $userField = $DB->get_records(
+        'user_info_field',
+        null,
+        'id,shortname'
+    );
+    foreach ($userField as $field) {
+        $shortname = $field->shortname;
+        $fieldId = $field->id;
+        $output[$shortname] = $fieldId;
+    }
     return $output;
 }

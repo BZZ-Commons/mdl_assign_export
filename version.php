@@ -23,7 +23,10 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2023061302;
+$plugin->version = 2023061303;
 $plugin->requires = 2015111000;
 $plugin->component = 'local_assignment_export';
+$plugin->dependencies = array(
+    'local_modcustomfields' => 2022021700, // mod for custom fields in activities
+);
 $plugin->maturity = MATURITY_BETA;

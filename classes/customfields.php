@@ -7,23 +7,24 @@
 function custom_field_ids() {
     global $DB;
     $output = [];
-    $customField = $DB->get_records(
+    $custom_fields = $DB->get_records(
         'customfield_field',
         null,
         'id,shortname,categoryid');
-    foreach ($customField as $field) {
-        $shortname = $field->shortname;
-        $fieldId = $field->id;
-        error_log("Field: $shortname = $fieldId" );
-        $output[$shortname] = $fieldId;
-    }
+    set_output($output, $custom_fields);
 
-    $userField = $DB->get_records(
+    $user_fields = $DB->get_records(
         'user_info_field',
         null,
         'id,shortname'
     );
-    foreach ($userField as $field) {
+    set_output($output, $user_fields);
+
+    return $output;
+}
+
+function set_output($output, $fields) {
+    foreach ($fields as $field) {
         $shortname = $field->shortname;
         $fieldId = $field->id;
         $output[$shortname] = $fieldId;

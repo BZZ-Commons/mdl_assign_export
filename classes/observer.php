@@ -1,5 +1,5 @@
 <?php
-
+require 'customfields.php';
 class local_assignment_export_observer
 {
     /**
@@ -30,6 +30,7 @@ class local_assignment_export_observer
     private static function export_data($event_data)
     {
         global $DB;
+        $customFields = custom_field_ids();
         if ($event_data['other']['modulename'] == 'assign') {
             $courseid = $event_data['courseid'];
             $customfield_data = $DB->get_record('customfield_data', ['fieldid' => 2, 'instanceid' => $courseid]);

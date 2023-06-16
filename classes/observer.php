@@ -64,8 +64,11 @@ class local_assignment_export_observer
                     );
 
                     foreach ($users as $id => $user) {
-                        $gh_username = $user->alternatename;
-                        if ($user->gh_username != '') $gh_username = $user->gh_username;
+                        $gh_username = '';
+                        if ($user->gh_username != '')
+                            $gh_username = $user->gh_username;
+                        else
+                            $gh_username = $user->alternatename;
                         if ($gh_username != '') {
                             self::write_json(
                                 $reponame,

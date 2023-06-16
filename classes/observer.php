@@ -41,9 +41,9 @@ class local_assignment_export_observer
             $reponame = trim($customfield_data->value);
 
             error_log("reponame: " .$reponame);
+            error_log("objectid: ". $event_data["objectid"]);
             if ($reponame == '') {
-                $module = $DB->get_record('course_modules', ['id' => $event_data['objectid']]);
-                error_log("Module:" . print_r($module));
+                $module = $DB->get_record('course_modules', ["id" => $event_data["objectid"]]);
                 $reponame = trim($module->idnumber);
             }
 
@@ -71,7 +71,7 @@ class local_assignment_export_observer
                                 $reponame,
                                 $gh_username,
                                 $courseid,
-                                $module->instance,
+                                $event_data["objectid"],
                                 $user->userid
                             );
                         }

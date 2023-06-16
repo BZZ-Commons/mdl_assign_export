@@ -42,6 +42,7 @@ class local_assignment_export_observer
 
             if ($reponame == '') {
                 $module = $DB->get_record('course_modules', ['id' => $event_data['objectid']]);
+                error_log("Module", print_r($module));
                 $reponame = trim($module->idnumber);
             }
 

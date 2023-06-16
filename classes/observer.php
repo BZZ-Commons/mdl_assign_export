@@ -40,9 +40,10 @@ class local_assignment_export_observer
             );
             $reponame = trim($customfield_data->value);
 
+            error_log("reponame: " .$reponame);
             if ($reponame == '') {
                 $module = $DB->get_record('course_modules', ['id' => $event_data['objectid']]);
-                error_log("Module", print_r($module));
+                error_log("Module:" . print_r($module));
                 $reponame = trim($module->idnumber);
             }
 
